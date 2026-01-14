@@ -121,6 +121,14 @@ __weak int fixup_cpu(void)
 	return 0;
 }
 
+int test_point(void)
+{
+	while(1){
+		;
+	} 
+	return 0;
+}
+
 static int initr_reloc_global_data(void)
 {
 #ifdef __ARM__
@@ -757,8 +765,24 @@ static init_fnc_t init_sequence_r[] = {
 	run_main_loop,
 };
 
+
+void hanghang(void)
+{
+#if !defined(CONFIG_SPL_BUILD) || \
+		(CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT) && \
+		 CONFIG_IS_ENABLED(SERIAL))
+	puts("### ERROR ### Please RESET the board ###\n");
+#endif
+	bootstage_error(BOOTSTAGE_ID_NEED_RESET);
+	if (IS_ENABLED(CONFIG_SANDBOX))
+		os_exit(1);
+	for (;;)
+		;
+}
+
 void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
+	hanghang();
 	/*
 	 * The pre-relocation drivers may be using memory that has now gone
 	 * away. Mark serial as unavailable - this will fall back to the debug

@@ -264,6 +264,7 @@ static int initr_dm_devices(void)
 			return ret;
 	}
 
+/**/	
 	if (IS_ENABLED(CONFIG_MULTIPLEXER)) {
 		/*
 		 * Initialize the multiplexer controls to their default state.
@@ -707,9 +708,11 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 	cpu_secondary_init_r,
+	/*
 #if defined(CONFIG_ID_EEPROM)
 	mac_read_from_eeprom,
 #endif
+*/
 	INITCALL_EVENT(EVT_SETTINGS_R),
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_PCI_INIT_R) && !defined(CONFIG_SYS_EARLY_PCI_INIT)

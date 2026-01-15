@@ -370,8 +370,10 @@ static int initr_flash(void)
 }
 #endif
 
+/**/
+/*
 #ifdef CONFIG_CMD_NAND
-/* go init the NAND */
+ go init the NAND 
 static int initr_nand(void)
 {
 	puts("NAND:  ");
@@ -382,7 +384,7 @@ static int initr_nand(void)
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
-/* go init the NAND */
+ go init the NAND 
 static int initr_onenand(void)
 {
 	puts("NAND:  ");
@@ -390,7 +392,8 @@ static int initr_onenand(void)
 	return 0;
 }
 #endif
-
+*/
+/*
 #ifdef CONFIG_MMC
 static int initr_mmc(void)
 {
@@ -399,6 +402,7 @@ static int initr_mmc(void)
 	return 0;
 }
 #endif
+*/
 
 #ifdef CONFIG_PVBLOCK
 static int initr_pvblock(void)
@@ -677,15 +681,20 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_EFI_LOADER
 	efi_init_early,
 #endif
+
+/*
 #ifdef CONFIG_CMD_NAND
 	initr_nand,
 #endif
+*/
 #ifdef CONFIG_CMD_ONENAND
 	initr_onenand,
 #endif
+/*
 #ifdef CONFIG_MMC
 	initr_mmc,
 #endif
+*/
 #ifdef CONFIG_XEN
 	xen_init,
 #endif

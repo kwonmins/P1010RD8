@@ -403,6 +403,12 @@ int i2c_pca9557_read(int type)
 
 int checkboard(void)
 {
+#if 1
+	struct cpu_type *cpu;
+	cpu = gd->arch.cpu;
+
+	printf("Board: %sRDB-PB NEMON\n", cpu->name);
+#else
 	struct cpu_type *cpu;
 	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 	u8 val;
@@ -475,8 +481,19 @@ int checkboard(void)
 		break;
 	}
 #endif
+
+
+#endif
+
+
+phys_size_t get_sdram_size(void)
+{
+    return 1024; /* MB */
+}
+
 	return 0;
 }
+
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 void fdt_del_flexcan(void *blob)

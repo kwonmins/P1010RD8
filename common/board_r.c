@@ -768,16 +768,10 @@ static init_fnc_t init_sequence_r[] = {
 
 void hanghang(void)
 {
-#if !defined(CONFIG_SPL_BUILD) || \
-		(CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT) && \
-		 CONFIG_IS_ENABLED(SERIAL))
-	puts("### ERROR ### Please RESET the board ###\n");
-#endif
-	bootstage_error(BOOTSTAGE_ID_NEED_RESET);
-	if (IS_ENABLED(CONFIG_SANDBOX))
-		os_exit(1);
-	for (;;)
-		;
+volatile int value=1;
+while(value) {
+	;
+}
 }
 
 void board_init_r(gd_t *new_gd, ulong dest_addr)

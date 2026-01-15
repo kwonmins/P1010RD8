@@ -23,6 +23,8 @@ DECLARE_GLOBAL_DATA_PTR;
  * otherwise, tAA, tRCD, tRP will be 13500ps
  * and tRC will be 49500ps
  */
+ 
+ /**/
 dimm_params_t ddr_raw_timing = {
 	.n_ranks = 1,
 	.rank_density = 1073741824u,

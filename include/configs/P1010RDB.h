@@ -99,9 +99,9 @@
 #define SPD_EEPROM_ADDRESS		0x52
 
 #ifndef __ASSEMBLY__
-extern unsigned long get_sdram_size(void);
+//extern unsigned long get_sdram_size(void);
 #endif
-#define CFG_SYS_SDRAM_SIZE		get_sdram_size() /* DDR size */
+#define CFG_SYS_SDRAM_SIZE		1024 /* DDR size */
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 

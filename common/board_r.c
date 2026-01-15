@@ -766,17 +766,8 @@ static init_fnc_t init_sequence_r[] = {
 };
 
 
-void hanghang(void)
-{
-volatile int value=1;
-while(value) {
-	;
-}
-}
-
 void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
-	hanghang();
 	/*
 	 * The pre-relocation drivers may be using memory that has now gone
 	 * away. Mark serial as unavailable - this will fall back to the debug

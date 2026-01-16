@@ -497,7 +497,7 @@ static int initr_scsi(void)
 }
 #endif
 
-/*
+
 #ifdef CONFIG_CMD_NET
 static int initr_net(void)
 {
@@ -510,7 +510,7 @@ static int initr_net(void)
 	return 0;
 }
 #endif
-*/
+
 
 #ifdef CONFIG_POST
 static int initr_post(void)
@@ -711,11 +711,12 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 	cpu_secondary_init_r,
+	
 	/*
 #if defined(CONFIG_ID_EEPROM)
 	mac_read_from_eeprom,
-#endif
-*/
+#endif*/
+
 	INITCALL_EVENT(EVT_SETTINGS_R),
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_PCI_INIT_R) && !defined(CONFIG_SYS_EARLY_PCI_INIT)
@@ -766,12 +767,12 @@ static init_fnc_t init_sequence_r[] = {
 	pci_ep_init,
 #endif
 
-/*
+
 #ifdef CONFIG_CMD_NET
 	INIT_FUNC_WATCHDOG_RESET
 	initr_net,
 #endif
-*/
+
 #ifdef CONFIG_POST
 	initr_post,
 #endif

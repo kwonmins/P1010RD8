@@ -129,6 +129,7 @@ int board_early_init_r(void)
 	return 0;
 }
 
+#if 0
 int config_board_mux(int ctrl_type)
 {
 	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
@@ -363,6 +364,7 @@ int config_board_mux(int ctrl_type)
 #endif
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_TARGET_P1010RDB_PB
 int i2c_pca9557_read(int type)
@@ -627,15 +629,12 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #ifdef CONFIG_SDCARD
 int board_mmc_init(struct bd_info *bis)
 {
-	config_board_mux(MUX_TYPE_SDHC);
-		return -1;
+	return -1;
 }
 #else
 void board_reset(void)
 {
-	/* mux to IFC to enable CPLD for reset */
-	if (sd_ifc_mux != MUX_TYPE_IFC)
-		config_board_mux(MUX_TYPE_IFC);
+
 }
 #endif
 
@@ -644,6 +643,7 @@ int misc_init_r(void)
 {
 	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
+#if 0
 	if (hwconfig_subarg_cmp("fsl_p1010mux", "tdm_can", "can")) {
 		clrbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_CAN1_TDM |
 				MPC85xx_PMUXCR_CAN1_UART |
@@ -667,6 +667,7 @@ int misc_init_r(void)
 		config_board_mux(MUX_TYPE_SDHC);
 	else if (hwconfig("ifc"))
 		config_board_mux(MUX_TYPE_IFC);
+#endif
 
 #ifdef CONFIG_TARGET_P1010RDB_PB
 	setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_GPIO01_DRVVBUS);
@@ -678,6 +679,7 @@ int misc_init_r(void)
 static int pin_mux_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
+#if 0
 	if (argc < 2)
 		return CMD_RET_USAGE;
 	if (strcmp(argv[1], "ifc") == 0)
@@ -686,6 +688,7 @@ static int pin_mux_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 		config_board_mux(MUX_TYPE_SDHC);
 	else
 		return CMD_RET_USAGE;
+#endif
 	return 0;
 }
 

@@ -253,7 +253,7 @@ static int initr_dm(void)
 	return 0;
 }
 #endif
-
+/**/
 static int initr_dm_devices(void)
 {
 	int ret;
@@ -263,21 +263,22 @@ static int initr_dm_devices(void)
 		if (ret)
 			return ret;
 	}
-
-/**/	
-	if (IS_ENABLED(CONFIG_MULTIPLEXER)) {
-		/*
+	/*
 		 * Initialize the multiplexer controls to their default state.
 		 * This must be done early as other drivers may unknowingly
 		 * rely on it.
 		 */
+
+	if (IS_ENABLED(CONFIG_MULTIPLEXER)) {
+	
 		ret = dm_mux_init();
 		if (ret)
 			return ret;
-	}
+}
 
 	return 0;
 }
+
 
 static int initr_bootstage(void)
 {
@@ -311,6 +312,7 @@ static int initr_binman(void)
 	return ret;
 }
 
+/**/
 #if defined(CONFIG_MTD_NOR_FLASH)
 __weak int is_flash_available(void)
 {
@@ -371,10 +373,9 @@ static int initr_flash(void)
 }
 #endif
 
-/**/
-/*
+
 #ifdef CONFIG_CMD_NAND
- go init the NAND 
+ //go init the NAND 
 static int initr_nand(void)
 {
 	puts("NAND:  ");
@@ -385,7 +386,7 @@ static int initr_nand(void)
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
- go init the NAND 
+ //go init the NAND 
 static int initr_onenand(void)
 {
 	puts("NAND:  ");
@@ -393,7 +394,7 @@ static int initr_onenand(void)
 	return 0;
 }
 #endif
-*/
+
 /*
 #ifdef CONFIG_MMC
 static int initr_mmc(void)
@@ -496,6 +497,7 @@ static int initr_scsi(void)
 }
 #endif
 
+/*
 #ifdef CONFIG_CMD_NET
 static int initr_net(void)
 {
@@ -508,6 +510,7 @@ static int initr_net(void)
 	return 0;
 }
 #endif
+*/
 
 #ifdef CONFIG_POST
 static int initr_post(void)
@@ -683,11 +686,11 @@ static init_fnc_t init_sequence_r[] = {
 	efi_init_early,
 #endif
 
-/*
+
 #ifdef CONFIG_CMD_NAND
 	initr_nand,
 #endif
-*/
+
 #ifdef CONFIG_CMD_ONENAND
 	initr_onenand,
 #endif
@@ -762,10 +765,13 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_PCI_ENDPOINT
 	pci_ep_init,
 #endif
+
+/*
 #ifdef CONFIG_CMD_NET
 	INIT_FUNC_WATCHDOG_RESET
 	initr_net,
 #endif
+*/
 #ifdef CONFIG_POST
 	initr_post,
 #endif

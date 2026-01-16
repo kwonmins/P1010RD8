@@ -184,9 +184,9 @@
 				| CSOR_NAND_ECC_DEC_EN  /* ECC on decode */ \
 				| CSOR_NAND_ECC_MODE_4  /* 4-bit ECC */ \
 				| CSOR_NAND_RAL_3       /* RAL = 3Byes */ \
-				| CSOR_NAND_PGS_4K      /* Page Size = 4K */ \
-				| CSOR_NAND_SPRZ_224    /* Spare size = 224 */ \
-				| CSOR_NAND_PB(128))  /*Pages Per Block = 128 */
+				| CSOR_NAND_PGS_2K      /* Page Size = 4K */ \
+				| CSOR_NAND_SPRZ_64    /* Spare size = 224 */ \
+				| CSOR_NAND_PB(64))  /*Pages Per Block = 128 */
 #endif
 
 #define CFG_SYS_NAND_BASE_LIST	{ CFG_SYS_NAND_BASE }

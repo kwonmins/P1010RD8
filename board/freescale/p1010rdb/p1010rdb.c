@@ -29,10 +29,14 @@
 #include <asm/fsl_pci.h>
 #include <hwconfig.h>
 #include <i2c.h>
-
-DECLARE_GLOBAL_DATA_PTR;
+#include <linux/delay.h>
 
 #define GPIO4_PCIE_RESET_SET		0x08000000
+#define GPIO8_MASK   (0x80000000 >> 8) 
+#define GPIO9_MASK   (0x80000000 >> 9)  /* GPIO4 쓰던 방식과 동일 */
+#define PMUXCR1_SPI_MASK  0x00000030      /* bits 26..27 */
+#define PMUXCR1_SPI_GPIO  0x00000020      /* 10b << 26 : GPIO[6:9] */
+
 #define MUX_CPLD_CAN_UART		0x00
 #define MUX_CPLD_TDM			0x01
 #define MUX_CPLD_SPICS0_FLASH		0x00
@@ -40,6 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PMUXCR1_IFC_MASK       0x00ffff00
 #define PMUXCR1_SDHC_MASK      0x00fff000
 #define PMUXCR1_SDHC_ENABLE    0x00555000
+
 
 enum {
 	MUX_TYPE_IFC,
@@ -57,6 +62,7 @@ enum {
 };
 
 static uint sd_ifc_mux;
+
 
 struct cpld_data {
 	u8 cpld_ver; /* cpld revision */
@@ -80,6 +86,7 @@ struct cpld_data {
 #endif
 };
 
+
 int board_early_init_f(void)
 {
 	ccsr_gpio_t *pgpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
@@ -95,10 +102,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+
+
+
 int board_early_init_r(void)
 {
 	const unsigned int flashbase = CFG_SYS_FLASH_BASE;
 	int flash_esel = find_tlb_idx((void *)flashbase, 1);
+	//printf("KwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwonKwon\n");
 
 	/*
 	 * Remap Boot flash region to caching-inhibited
@@ -126,10 +137,11 @@ int board_early_init_r(void)
 			CFG_SYS_FLASH_BASE_PHYS + 0x1000000,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, flash_esel+1, BOOKE_PAGESZ_16M, 1);
+			
 	return 0;
 }
 
-#if 0
+
 int config_board_mux(int ctrl_type)
 {
 	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
@@ -364,7 +376,8 @@ int config_board_mux(int ctrl_type)
 #endif
 	return 0;
 }
-#endif
+
+
 
 #ifdef CONFIG_TARGET_P1010RDB_PB
 int i2c_pca9557_read(int type)
@@ -411,6 +424,7 @@ int checkboard(void)
 
 	printf("Board: %sRDB-PB NEMON\n", cpu->name);
 #else
+
 	struct cpu_type *cpu;
 	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 	u8 val;
@@ -641,7 +655,32 @@ void board_reset(void)
 
 int misc_init_r(void)
 {
-	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t __iomem  *gur  = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
+    ccsr_gpio_t __iomem *gpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
+
+
+    /* SPI -> GPIO[6:9] */
+    clrsetbits_be32(&gur->pmuxcr, PMUXCR1_SPI_MASK, PMUXCR1_SPI_GPIO);
+
+    /* === LNK2는 GPIO9 === */
+    setbits_be32(&gpio->gpdir, GPIO9_MASK);   // output
+    setbits_be32(&gpio->gpodr, GPIO9_MASK);   // open-drain (pull-up 있을 때 안전)
+	clrbits_be32(&gpio->gpdat, GPIO9_MASK);  // LOW = ON (싱크)
+
+#if 0
+    for (i = 0; i < 10; i++) {
+        
+        udelay(200000);
+        setbits_be32(&gpio->gpdat, GPIO9_MASK);  // release/high = OFF
+        udelay(200000);
+    }
+#endif
+    printf("pmuxcr=%08x gpdir=%08x gpodr=%08x gpdat=%08x\n",
+           in_be32(&gur->pmuxcr),
+           in_be32(&gpio->gpdir),
+           in_be32(&gpio->gpodr),
+           in_be32(&gpio->gpdat));
+			udelay(2000000);
 
 #if 0
 	if (hwconfig_subarg_cmp("fsl_p1010mux", "tdm_can", "can")) {
@@ -691,6 +730,8 @@ static int pin_mux_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 #endif
 	return 0;
 }
+
+
 
 U_BOOT_CMD(
 	mux, 2, 0, pin_mux_cmd,

@@ -37,6 +37,9 @@
 #define PMUXCR1_SPI_MASK  0x00000030      /* bits 26..27 */
 #define PMUXCR1_SPI_GPIO  0x00000020      /* 10b << 26 : GPIO[6:9] */
 
+#define PMUXCR2_SPI_MASK  0x00000030      /* bits 26..27 */
+#define PMUXCR2_SPI_GPIO  0x00000020      /* 10b << 26 : GPIO[6:9] */
+
 #define MUX_CPLD_CAN_UART		0x00
 #define MUX_CPLD_TDM			0x01
 #define MUX_CPLD_SPICS0_FLASH		0x00
@@ -663,6 +666,10 @@ int misc_init_r(void)
     clrsetbits_be32(&gur->pmuxcr, PMUXCR1_SPI_MASK, PMUXCR1_SPI_GPIO);
 
     /* === LNK2는 GPIO9 === */
+	setbits_be32(&gpio->gpdir, GPIO8_MASK);
+ 	setbits_be32(&gpio->gpodr, GPIO8_MASK);   // open-drain (pull-up 있을 때 안전)
+	clrbits_be32(&gpio->gpdat, GPIO8_MASK);  // LOW = ON (싱크)
+
     setbits_be32(&gpio->gpdir, GPIO9_MASK);   // output
     setbits_be32(&gpio->gpodr, GPIO9_MASK);   // open-drain (pull-up 있을 때 안전)
 	clrbits_be32(&gpio->gpdat, GPIO9_MASK);  // LOW = ON (싱크)

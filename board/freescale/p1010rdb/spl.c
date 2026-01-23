@@ -32,12 +32,13 @@ void board_init_f(ulong bootflag)
 	struct fsl_ifc ifc = {(void *)CFG_SYS_IFC_ADDR, (void *)NULL};
 
 	console_init_f();
-
+	printf("1 console_init_f();");
 	/* Clock configuration to access CPLD using IFC(GPCM) */
 	setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);
-
+	printf("2 setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT); ");
 #ifdef CONFIG_TARGET_P1010RDB_PB
 	setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_GPIO01_DRVVBUS);
+	printf("3setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_GPIO01_DRVVBUS);");
 #endif
 
 	/* initialize selected port with appropriate baud rate */
@@ -45,7 +46,7 @@ void board_init_f(ulong bootflag)
 	plat_ratio >>= 1;
 	gd->bus_clk = get_board_sys_clk() * plat_ratio;
 
-	ns16550_init((struct ns16550 *)CFG_SYS_NS16550_COM1,
+	ns16550_init((struct ns16550 *)CFG_SYS_NS16550_COM2,
 		     gd->bus_clk / 16 / CONFIG_BAUDRATE);
 
 #ifdef CONFIG_SPL_MMC_BOOT

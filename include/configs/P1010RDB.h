@@ -112,14 +112,18 @@
  * Memory map
  *
  * 0x0000_0000	0x3fff_ffff	DDR			1G cacheable
- * 0x8000_0000  0xbfff_ffff	PCI Express Mem		1.5G non-cacheable
- * 0xffc0_0000  0xffc3_ffff	PCI IO range		256k non-cacheable
+ * 0x8000_0000  0xbfff_ffff	PCI Express Mem		1.5G non-cacheable  {PIC = 주변장치 컴포넌트 상호연결 표준}
+ * 0xffc0_0000  0xffc3_ffff	PCI IO range		256k non-cacheable {PCI의 고속 직렬버전 }
  *
  * Localbus non-cacheable
  * 0xff80_0000	0xff8f_ffff	NAND Flash		1M non-cacheable
- * 0xffb0_0000	0xffbf_ffff	Board CPLD		1M non-cacheable
- * 0xffd0_0000	0xffd0_3fff	L1 for stack		16K Cacheable TLB0
- * 0xffe0_0000	0xffef_ffff	CCSR			1M non-cacheable
+ * 0xffb0_0000	0xffbf_ffff	Board CPLD		1M non-cacheable {Complex Programmable Logic Device = 복잡한 프로그램 로직 기기/ 보드에 붙어있는 cpld가 보드 제어용 로직을 담당하는것
+ 															 cf)MMIO : Memory-mapped I/o 메모리에 매핑된 입출력 CPU가 어떤 주소를 읽고 쓰는 동작이  램이 아니라 장치(하드웨어 레지스터)로 연결되는 주소구간}
+																RAM 주소를 읽기/쓰기 → 진짜 메모리(DDR)에 저장/로드
+																MMIO 주소를 읽기/쓰기 → 장치 레지스터를 읽거나 장치에 명령을 씀
+
+ * 0xffd0_0000	0xffd0_3fff	L1 for stack		16K Cacheable TLB0  {CPU안에 있는 1차 캐시}
+ * 0xffe0_0000	0xffef_ffff	CCSR			1M non-cacheable {Chip Configuration and Status Registers: 칩 설정/ 상태 레지스터들}
  */
 
 /*

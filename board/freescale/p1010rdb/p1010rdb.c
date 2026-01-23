@@ -654,25 +654,98 @@ void board_reset(void)
 }
 #endif
 
+int board_led_init(void)
+{
+	uint32_t data;
+	volatile uint32_t *p;
+	// CCSR BASE : 0xffe00000
+	printf("------------------------------------------------------\n");
+	printf("PMUXCR1\n");
+	// 1. pin mode to gpio
+	// PIN : GPIO8, GPIO9 = SPI와 기능이 MUX 되어 있어요
+	// Register : PMUXCR1 (addr:0xe0060) [26-27] = 0b10
+	p = (volatile uint32_t*)(0xffe00000 + 0xe0060);
+
+	// 기존 값 읽음.
+	data = *p;
+	printf("PMUXCR1(0x%08x) : 0x%08x (Original)\n", (uint32_t)p, data);
+	// 바꿈
+	// [26:27] clear
+	data &= ~0x00000030;
+	// 26 -> 1
+	data |= 0x00000020;
+	// 바뀐 값 씀.
+	*p = data;
+	printf("PMUXCR1(0x%08x) : 0x%08x (New)\n", (uint32_t)p, data);
+
+	printf("------------------------------------------------------\n");
+	printf("GPDIR\n");
+
+	// 2. gpio8, 9 mode to output
+	// Register : GPDIR
+
+	p = (volatile uint32_t*)(0xffe00000+0xf000);
+
+	data = *p;
+	printf("GPDIR (0x%08x) : 0x%08x (Original)\n", (uint32_t)p, data);
+	data |=  0x00c00000;
+	*p=data;
+	printf("GPDIR (0x%08x) : 0x%08x (New)\n", (uint32_t)p, data);
+	printf("======================================================\n");
+
+	// 3. gpio8, 9 : open drain mode
+	// Register : GPODR
+	printf("------------------------------------------------------\n");
+	printf("GPODR\n");
+
+	p = (volatile uint32_t*)(0xffe00000+0xf004);
+
+	data = *p;
+	printf("GPODR (0x%08x) : 0x%08x (Original)\n", (uint32_t)p, data);
+	data |=  0x00c00000;
+	*p=data;
+	printf("GPODR (0x%08x) : 0x%08x (New)\n", (uint32_t)p, data);
+	printf("======================================================\n");
+
+	// 4. gpio8 off, 9 on value setting
+	printf("------------------------------------------------------\n");
+	printf("GPdat\n");
+
+	p = (volatile uint32_t*)(0xffe00000+0xf008);
+
+	data = *p;
+	printf("GPODR (0x%08x) : 0x%08x (Original)\n", (uint32_t)p, data);
+	data &= ~0x00c00000;
+	data |=  0x00800000;
+	*p=data;
+	printf("GPODR (0x%08x) : 0x%08x (New)\n", (uint32_t)p, data);
+	printf("======================================================\n");
+
+
+
+
+
+	return 0;
+}
+
 
 int misc_init_r(void)
 {
-
-
-
 	//(void *)주소 정수값을 주소값으로 바꾸고 포인터로 받음 
 	//ccsr_gur_t *gur / ccsr_gpio_t *gpio => 가령 gur->pmuxcr을 사용할때 c가 자동으로 gur베이스주소+pmuxcr오프셋을 계산해서 그 레지스터 주소를 가르킴
 	//__iomem 포인터는 일반 RAM 포인터가 아니라 I/O 메모리(레지스터) 포인터다” 라는 표시(주석 같은 타입 속성)
 	//gur = “0xffee0000을 GUTS 레지스터 구조체로 해석하는 포인터” gpio = “0xffe0f000을 GPIO 레지스터 구조체로 해석하는 포인터” ==>구조체로 해석해서 좋은점은 레지스터 주소를 자동으로 계산해줌
+	//ccsr_gur_t __iomem  *gur  = (void *)(0xffee0000); //CFG_SYS_MPC85xx_GUTS_ADDR 레지스터 블록의 물리주소에 매핑된 베이스주소
 	ccsr_gur_t __iomem  *gur  = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR); //CFG_SYS_MPC85xx_GUTS_ADDR 레지스터 블록의 물리주소에 매핑된 베이스주소
     ccsr_gpio_t __iomem *gpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR); //CFG_SYS_MPC85xx_GPIO_ADDR 레지스터 블록의 물리주소에 매핑된 베이스주소
 	printf("GUTS base=%p pmuxcr=%p\n", gur, &gur->pmuxcr); //gur베이스주소확인(0xffee0000) &gur->pmuxcr : base + pmuxcr 오프셋(=0xffee0060)
 	printf("GPIO base=%p gpdir=%p gpodr=%p gpdat=%p\n", //gpio : base (0xffe0f000) &gpio->gpdir : 0xffe0f000 &gpio->gpodr : 0xffe0f004 &gpio->gpdat : 0xffe0f008
        gpio, &gpio->gpdir, &gpio->gpodr, &gpio->gpdat);
 
+	board_led_init();
+ #if 0
     /* SPI -> GPIO[6:9] */
     clrsetbits_be32(&gur->pmuxcr, PMUXCR1_SPI_MASK, PMUXCR1_SPI_GPIO); //핀 멀티플렉싱 설정 (PMUXCR1에서 SPI필드를 GPIO[6:9]로)
- #if 0
     /* === LNK2는 GPIO9 === */
 	setbits_be32(&gpio->gpdir, GPIO8_MASK); 
  	setbits_be32(&gpio->gpodr, GPIO8_MASK);   

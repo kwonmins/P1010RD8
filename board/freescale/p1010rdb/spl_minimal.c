@@ -43,6 +43,8 @@ void board_init_f(ulong bootflag)
 	 */
 
 	relocate_code(CONFIG_SPL_RELOC_STACK, 0, CONFIG_SPL_RELOC_TEXT_BASE);
+
+	
 }
 
 void board_init_r(gd_t *gd, ulong dest_addr)

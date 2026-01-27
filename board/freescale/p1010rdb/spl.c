@@ -24,7 +24,7 @@ phys_size_t get_effective_memsize(void)
 {
 	return CONFIG_SYS_L2_SIZE;
 }
-
+void board_init_r(gd_t *gd, ulong dest_addr);
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio;
@@ -32,13 +32,13 @@ void board_init_f(ulong bootflag)
 	struct fsl_ifc ifc = {(void *)CFG_SYS_IFC_ADDR, (void *)NULL};
 
 	console_init_f();
-	printf("1 console_init_f();");
+	printf("\n1 console_init_f();\n");
 	/* Clock configuration to access CPLD using IFC(GPCM) */
 	setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);
-	printf("2 setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT); ");
+	printf("2 setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);\n ");
 #ifdef CONFIG_TARGET_P1010RDB_PB
 	setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_GPIO01_DRVVBUS);
-	printf("3setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_GPIO01_DRVVBUS);");
+	printf("3setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_GPIO01_DRVVBUS);\n");
 #endif
 
 	/* initialize selected port with appropriate baud rate */
@@ -58,7 +58,19 @@ void board_init_f(ulong bootflag)
 	/* NOTE - code has to be copied out of NAND buffer before
 	 * other blocks can be read.
 	*/
-	relocate_code(CONFIG_VAL(RELOC_STACK), 0, CONFIG_SPL_RELOC_TEXT_BASE);
+	puts("4 before relocate\n");
+	printf("MONITOR_BASE=%lx SPL_TEXT_BASE=%lx\n",
+    (ulong)CONFIG_SYS_MONITOR_BASE, (ulong)CONFIG_SPL_TEXT_BASE);
+	printf("board_init_f=%p\n", board_init_f);
+	relocate_code(CONFIG_VAL(RELOC_STACK), 0, CONFIG_SPL_RELOC_TEXT_BASE); 
+	
+		puts("5 after relocate\n");
+		puts("skip relocate -> jump board_init_r\n");
+board_init_r(NULL, 0);
+
+/* board_init_r가 리턴하면 안 되므로 여기서 멈춤 */
+while (1) ;
+
 }
 
 void board_init_r(gd_t *gd, ulong dest_addr)
@@ -73,7 +85,9 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	gd->bd = bd;
 
 	arch_cpu_init();
+	printf("arch_cpu_init();\n");
 	get_clocks();
+	printf("5get_clocks();\n");
 	mem_malloc_init(CONFIG_VAL(RELOC_MALLOC_ADDR),
 			CONFIG_VAL(RELOC_MALLOC_SIZE));
 	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
@@ -98,17 +112,30 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	i2c_init_all();
 
 	dram_init();
+
 #ifdef CONFIG_SPL_NAND_BOOT
 	puts("\nTertiary program loader running in sram...");
 #else
 	puts("\nSecond program loader running in sram...");
 #endif
 
+
+
 #ifdef CONFIG_SPL_MMC_BOOT
 	mmc_boot();
 #elif defined(CONFIG_SPL_SPI_BOOT)
 	fsl_spi_boot();
 #elif defined(CONFIG_SPL_NAND_BOOT)
+
+puts("\n[DBG] before nand_boot\n");
+printf("[DBG] MONITOR_BASE=%08lx\n", (ulong)CONFIG_SYS_MONITOR_BASE);
+/* 아래 매크로가 있으면 같이 */
+printf("[DBG] NAND_U_BOOT_START=%08x\n", (u32)CFG_SYS_NAND_U_BOOT_START);
+printf("[DBG] NAND_U_BOOT_DST  =%08x\n", (u32)CFG_SYS_NAND_U_BOOT_DST);
+printf("[DBG] NAND_U_BOOT_SIZE =%08x\n", (u32)CFG_SYS_NAND_U_BOOT_SIZE);
 	nand_boot();
+
+	puts("[DBG] after nand_boot (should not return)\n");
+while (1) ;
 #endif
 }
